@@ -1,5 +1,7 @@
 CloudFormation do
 
+  export = external_parameters.fetch(:export_name, external_parameters[:component_name])
+
   Condition("UseSnapshotID", FnNot(FnEquals(Ref(:SnapshotID), '')))
   Condition("CreateHostRecord", FnNot(FnEquals(Ref(:DnsDomain), '')))
   Condition("UseGlobalClusterIdentifier", FnNot(FnEquals(Ref(:GlobalClusterIdentifier), '')))
@@ -7,7 +9,7 @@ CloudFormation do
 
   aurora_tags = []
   tags = external_parameters.fetch(:tags, {})
-  aurora_tags << { Key: 'Name', Value: FnSub("${EnvironmentName}-#{external_parameters[:component_name]}") }
+  aurora_tags << { Key: 'Name', Value: FnSub("${EnvironmentName}-#{export}") }
   aurora_tags << { Key: 'Environment', Value: Ref(:EnvironmentName) }
   aurora_tags << { Key: 'EnvironmentType', Value: Ref(:EnvironmentType) }
   aurora_tags.push(*tags.map {|k,v| {Key: k, Value: FnSub(v)}}).uniq { |h| h[:Key] }
@@ -129,19 +131,19 @@ CloudFormation do
 
   Output(:SecurityGroupId) {
     Value(FnGetAtt(:SecurityGroup, :GroupId))
-    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-securitygroup-id")
+    Export FnSub("${EnvironmentName}-#{export}-securitygroup-id")
   }
 
   RDS_DBSubnetGroup(:DBClusterSubnetGroup) {
     SubnetIds Ref('SubnetIds')
-    DBSubnetGroupDescription FnSub("Aurora postgres #{component_name} subnets for the ${EnvironmentName} environment")
+    DBSubnetGroupDescription FnSub("Aurora postgres #{export} subnets for the ${EnvironmentName} environment")
     Tags aurora_tags
   }
 
   cluster_parameters = external_parameters.fetch(:cluster_parameters, nil)
 
   RDS_DBClusterParameterGroup(:DBClusterParameterGroup) {
-    Description FnSub("Aurora postgres #{component_name} cluster parameters for the ${EnvironmentName} environment")
+    Description FnSub("Aurora postgres #{export} cluster parameters for the ${EnvironmentName} environment")
     Family family
     Parameters cluster_parameters unless cluster_parameters.nil?
     Tags aurora_tags
@@ -162,7 +164,7 @@ CloudFormation do
 
     Output(:SecretCredentials) {
       Value(Ref(:SecretCredentials))
-      Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-Secret")
+      Export FnSub("${EnvironmentName}-#{export}-Secret")
     }
   else
     instance_username = FnJoin('', [ '{{resolve:ssm:', FnSub(master_login['username_ssm_param']), ':1}}' ])
@@ -210,7 +212,7 @@ CloudFormation do
   instance_parameters = external_parameters.fetch(:instance_parameters, nil)
 
   RDS_DBParameterGroup(:DBInstanceParameterGroup) {
-    Description FnSub("Aurora postgres #{component_name} instance parameters for the ${EnvironmentName} environment")
+    Description FnSub("Aurora postgres #{export} instance parameters for the ${EnvironmentName} environment")
     Family family
     Parameters instance_parameters unless instance_parameters.nil?
     Tags aurora_tags
@@ -309,13 +311,13 @@ CloudFormation do
 
     Output(:ServiceRegistry) {
       Value(Ref(:ServiceRegistry))
-      Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-CloudMapService")
+      Export FnSub("${EnvironmentName}-#{export}-CloudMapService")
     }
   end
 
   Output(:DBClusterId) {
     Value(Ref(:DBCluster))
-    Export FnSub("${EnvironmentName}-#{external_parameters[:component_name]}-dbcluster-id")
+    Export FnSub("${EnvironmentName}-#{export}-dbcluster-id")
   }
 
 end
