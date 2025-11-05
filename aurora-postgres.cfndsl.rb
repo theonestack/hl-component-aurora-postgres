@@ -320,4 +320,9 @@ CloudFormation do
     Export FnSub("${EnvironmentName}-#{export}-dbcluster-id")
   }
 
+  Output(:EndpointAddress) {
+    Value(FnGetAtt('DBCluster', 'Endpoint.Address'))
+    Export FnSub("${EnvironmentName}-#{export}-endpoint-address")
+  }
+
 end
