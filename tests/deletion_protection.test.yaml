@@ -1,0 +1,11 @@
+test_metadata:
+  type: config
+  name: deletion_protection
+  description: enables RDS cluster deletion protection
+
+family: aurora-postgresql12
+engine_version: 12.10
+
+minor_upgrade: false
+
+deletion_protection: true
