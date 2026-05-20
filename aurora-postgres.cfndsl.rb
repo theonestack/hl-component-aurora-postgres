@@ -241,7 +241,7 @@ CloudFormation do
     Condition("CreateReaderRecord", FnAnd([FnEquals(Ref("EnableReader"), 'true'), Condition('CreateHostRecord')]))
     Condition("EnableReader", FnEquals(Ref("EnableReader"), 'true'))
 
-    RDS_DBInstance(:DBClusterInstanceWriter) {
+    RDS_DBInstance(:DBClusterInstance) {
       DBSubnetGroupName Ref(:DBClusterSubnetGroup)
       DBParameterGroupName Ref(:DBInstanceParameterGroup)
       DBClusterIdentifier Ref(:DBCluster)
@@ -258,7 +258,7 @@ CloudFormation do
 
     reader_maintenance_window = external_parameters.fetch(:reader_maintenance_window, nil)
 
-    RDS_DBInstance(:DBClusterInstanceReader) {
+    RDS_DBInstance(:DBClusterInstances) {
       Condition(:EnableReader)
       DBSubnetGroupName Ref(:DBClusterSubnetGroup)
       DBParameterGroupName Ref(:DBInstanceParameterGroup)
