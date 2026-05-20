@@ -176,13 +176,17 @@ CloudFormation do
   kms = external_parameters.fetch(:kms, false)
   cluster_maintenance_window = external_parameters.fetch(:cluster_maintenance_window, nil)
   cloudwatch_log_exports = external_parameters.fetch(:cloudwatch_log_exports, [])
+  backup_retention_period = external_parameters.fetch(:backup_retention_period, 1)
+  deletion_protection = external_parameters.fetch(:deletion_protection, false)
 
   # for serverless v2 the EngineMode property in the DBCluster is to be left unset
 
   RDS_DBCluster(:DBCluster) {
     Engine 'aurora-postgresql'
+    BackupRetentionPeriod backup_retention_period
     EngineVersion engine_version unless engine_version.nil?
     DBClusterParameterGroupName Ref(:DBClusterParameterGroup)
+    DeletionProtection deletion_protection
     EnableCloudwatchLogsExports cloudwatch_log_exports if cloudwatch_log_exports.any?
     PreferredMaintenanceWindow cluster_maintenance_window unless cluster_maintenance_window.nil?
     SnapshotIdentifier FnIf('UseSnapshotID', Ref(:SnapshotID), Ref('AWS::NoValue'))
@@ -241,7 +245,7 @@ CloudFormation do
     Condition("CreateReaderRecord", FnAnd([FnEquals(Ref("EnableReader"), 'true'), Condition('CreateHostRecord')]))
     Condition("EnableReader", FnEquals(Ref("EnableReader"), 'true'))
 
-    RDS_DBInstance(:DBClusterInstanceWriter) {
+    RDS_DBInstance(:DBClusterInstance) {
       DBSubnetGroupName Ref(:DBClusterSubnetGroup)
       DBParameterGroupName Ref(:DBInstanceParameterGroup)
       DBClusterIdentifier Ref(:DBCluster)
@@ -258,7 +262,7 @@ CloudFormation do
 
     reader_maintenance_window = external_parameters.fetch(:reader_maintenance_window, nil)
 
-    RDS_DBInstance(:DBClusterInstanceReader) {
+    RDS_DBInstance(:DBClusterInstances) {
       Condition(:EnableReader)
       DBSubnetGroupName Ref(:DBClusterSubnetGroup)
       DBParameterGroupName Ref(:DBInstanceParameterGroup)

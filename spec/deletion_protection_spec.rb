@@ -4,11 +4,11 @@ describe 'compiled component aurora-postgres' do
   
   context 'cftest' do
     it 'compiles test' do
-      expect(system("cfhighlander cftest #{@validate} --tests tests/default.test.yaml")).to be_truthy
+      expect(system("cfhighlander cftest #{@validate} --tests tests/deletion_protection.test.yaml")).to be_truthy
     end      
   end
   
-  let(:template) { YAML.load_file("#{File.dirname(__FILE__)}/../out/tests/default/aurora-postgres.compiled.yaml") }
+  let(:template) { YAML.load_file("#{File.dirname(__FILE__)}/../out/tests/deletion_protection/aurora-postgres.compiled.yaml") }
   
   context "Resource" do
 
@@ -71,7 +71,7 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property Family" do
-          expect(resource["Properties"]["Family"]).to eq("aurora-postgresql9.6")
+          expect(resource["Properties"]["Family"]).to eq("aurora-postgresql12")
       end
       
       it "to have property Parameters" do
@@ -96,7 +96,7 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property EngineVersion" do
-          expect(resource["Properties"]["EngineVersion"]).to eq("9.6.12")
+          expect(resource["Properties"]["EngineVersion"]).to eq(12.1)
       end
       
       it "to have property DBClusterParameterGroupName" do
@@ -104,7 +104,7 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property DeletionProtection" do
-          expect(resource["Properties"]["DeletionProtection"]).to eq(false)
+          expect(resource["Properties"]["DeletionProtection"]).to eq(true)
       end
       
       it "to have property SnapshotIdentifier" do
@@ -125,10 +125,6 @@ describe 'compiled component aurora-postgres' do
       
       it "to have property VpcSecurityGroupIds" do
           expect(resource["Properties"]["VpcSecurityGroupIds"]).to eq([{"Ref"=>"SecurityGroup"}])
-      end
-      
-      it "to have property StorageEncrypted" do
-          expect(resource["Properties"]["StorageEncrypted"]).to eq(true)
       end
       
       it "to have property Port" do
@@ -153,7 +149,7 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property Family" do
-          expect(resource["Properties"]["Family"]).to eq("aurora-postgresql9.6")
+          expect(resource["Properties"]["Family"]).to eq("aurora-postgresql12")
       end
       
       it "to have property Tags" do
@@ -186,7 +182,11 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property EngineVersion" do
-          expect(resource["Properties"]["EngineVersion"]).to eq("9.6.12")
+          expect(resource["Properties"]["EngineVersion"]).to eq(12.1)
+      end
+      
+      it "to have property AutoMinorVersionUpgrade" do
+          expect(resource["Properties"]["AutoMinorVersionUpgrade"]).to eq(false)
       end
       
       it "to have property PubliclyAccessible" do
@@ -227,7 +227,11 @@ describe 'compiled component aurora-postgres' do
       end
       
       it "to have property EngineVersion" do
-          expect(resource["Properties"]["EngineVersion"]).to eq("9.6.12")
+          expect(resource["Properties"]["EngineVersion"]).to eq(12.1)
+      end
+      
+      it "to have property AutoMinorVersionUpgrade" do
+          expect(resource["Properties"]["AutoMinorVersionUpgrade"]).to eq(false)
       end
       
       it "to have property PubliclyAccessible" do
