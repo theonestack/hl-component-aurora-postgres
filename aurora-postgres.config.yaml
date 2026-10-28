@@ -1,5 +1,4 @@
 hostname: aurora2pg
-hostname_read_endpoint: aurora2pg-read
 dns_format: ${EnvironmentName}.${DnsDomain}
 
 cluster_port: 5432

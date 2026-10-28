@@ -245,6 +245,13 @@ describe 'compiled component aurora-postgres' do
       
     end
     
+    context "DBClusterReaderRecord" do
+      it "is not created without create_readonly_record" do
+          expect(template["Resources"]).not_to have_key("DBClusterReaderRecord")
+      end
+      
+    end
+    
   end
 
 end

@@ -1,0 +1,10 @@
+test_metadata:
+  type: config
+  name: serverless_readonly_record
+  description: test config for aurora serverless v2 with the read only dns record
+
+family: aurora-postgresql14
+engine_version: 14.6
+storage_encrypted: true
+engine_mode: serverless
+create_readonly_record: true

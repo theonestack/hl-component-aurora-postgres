@@ -279,11 +279,18 @@ CloudFormation do
       MonitoringRoleArn FnIf(:EnableEnhancedMonitoring, FnGetAtt(:EnhancedMonitoringRole, :Arn), Ref('AWS::NoValue'))
       Tags aurora_tags
     }
+  end
 
+  # serverless has no EnableReader param, so its read only record is opt-in via config.
+  # hostname_read_endpoint has no config default so that setting it counts as opting in.
+  hostname_read_endpoint = external_parameters.fetch(:hostname_read_endpoint, nil)
+  create_readonly_record = external_parameters.fetch(:create_readonly_record, false) || !hostname_read_endpoint.nil?
+
+  if engine_mode != 'serverless' || create_readonly_record
     Route53_RecordSet(:DBClusterReaderRecord) {
-      Condition(:CreateReaderRecord)
+      Condition(engine_mode == 'serverless' ? :CreateHostRecord : :CreateReaderRecord)
       HostedZoneName FnSub("#{external_parameters[:dns_format]}.")
-      Name FnSub("#{external_parameters[:hostname_read_endpoint]}.#{external_parameters[:dns_format]}.")
+      Name FnSub("#{hostname_read_endpoint || 'aurora2pg-read'}.#{external_parameters[:dns_format]}.")
       Type 'CNAME'
       TTL '60'
       ResourceRecords [ FnGetAtt('DBCluster','ReadEndpoint.Address') ]

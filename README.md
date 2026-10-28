@@ -75,6 +75,17 @@ service_discovery:
   name: db
 ```
 
+## Serverless Read Only Record
+
+With `engine_mode: serverless` the component doesn't create the read only DNS record by default. Setting either `hostname_read_endpoint` or `create_readonly_record: true` adds a CNAME pointing at the cluster's reader endpoint, named `hostname_read_endpoint` (default `aurora2pg-read`):
+
+```yaml
+engine_mode: serverless
+hostname_read_endpoint: db-ro
+```
+
+The record is only created when `DnsDomain` is set. Provisioned clusters keep using the `EnableReader` parameter.
+
 ## Enhanced Monitoring
 
 RDS Enhanced Monitoring provides OS-level metrics (CPU, memory, file system, disk I/O) at up to per-second granularity.
